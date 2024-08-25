@@ -1,8 +1,11 @@
 #!/bin/bash
 #Query necessary data
 
+SAMBAUSER=$(whoami)
+REPOBASE="https://raw.githubusercontent.com/Shahondin1624/System_Setup/master"
+
 # Prompt for the Samba user password
-read -sp "Enter password for Samba user shahondin1624: " sambapass
+read -sp "Enter password for Samba user $SAMBAUSER: " sambapass
 echo
 
 echo "Starting setup..."
@@ -17,7 +20,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 echo "Installing JDK-21"
 sudo apt install openjdk-21-jdk
 echo "Installing Jetbrains Toolbox"
-curl -fsSL https://raw.githubusercontent.com/nagygergo/jetbrains-toolbox-install/master/jetbrains-toolbox.sh | bash
+curl -fsSL "$REPOBASE/jetbrains_toolbox.sh" | bash
 echo "Installing Docker:"
 # Add Docker's official GPG key:
 sudo apt-get update
@@ -136,7 +139,7 @@ sudo systemctl enable --now pcscd
 
 # Define the download URL and target directory
 URL="https://developers.yubico.com/yubioath-flutter/Releases/yubico-authenticator-latest-linux.tar.gz"
-TARGET_DIR="/home/shahondin1624/Yubico"
+TARGET_DIR="$HOME/Yubico"
 
 # Create the target directory
 mkdir -p "$TARGET_DIR"
@@ -234,7 +237,7 @@ gsettings set org.gnome.shell.extensions.pop-shell show-active-hint true
 
 
 echo "Configuring Samba:"
-sudo smbpasswd -a shahondin1624
+sudo smbpasswd -a "$SAMBAUSER"
 mkdir -p "$HOME/VM_Share/TwoWay"
 mkdir -p "/$HOME/VM_Share/ReadOnly"
 sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
@@ -322,13 +325,22 @@ IGNORE_FILE="$HOME/.config/Insync/ignore_rules"
 # Create the ignore rules file and add the rules
 mkdir -p "$(dirname "$IGNORE_FILE")"
 echo "$IGNORE_RULES" > "$IGNORE_FILE"
-
 echo "Ignore rules have been set up for Insync."
-
 
 echo "Preparing folder mounting:"
 mkdir "$HOME/Insync"
 mkdir "$HOME/Steam"
+
+echo "Setting user picture:"
+USER_IMAGE_FILE="/tmp/user_picture.png"
+wget -O "$USER_IMAGE_FILE" "$REPOBASE/user_picture.png"
+sudo cp -f "$USER_IMAGE_FILE" "/var/lib/AccountsService/icons/$(whoami)"
+
+echo "Setting desktop background:"
+BACKGROUND_IMAGE_FILE="/tmp/desktop_background.png"
+wget -O "$BACKGROUND_IMAGE_FILE" "$REPOBASE/desktop_background.png"
+gsettings set org.gnome.desktop.background picture-uri "file://$BACKGROUND_IMAGE_FILE"
+
 
 
 echo "Finished installation!"
