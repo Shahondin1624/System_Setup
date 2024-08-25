@@ -167,6 +167,9 @@ echo "Yubico Authenticator has been installed and desktop integration has been s
 # Change back to the original directory
 cd "$CURRENT_DIR"
 
+echo "Installing htop:"
+sudo apt install htop -y
+
 
 echo "Configuring System..."
 
