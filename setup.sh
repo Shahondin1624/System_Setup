@@ -5,7 +5,7 @@ SAMBAUSER=$(whoami)
 REPOBASE="https://raw.githubusercontent.com/Shahondin1624/System_Setup/master"
 
 # Prompt for the Samba user password
-read -sp "Enter password for Samba user $SAMBAUSER: " sambapass
+read -sp "Enter password for Samba user $SAMBAUSER: " sambapassword
 echo
 
 echo "Starting setup..."
@@ -18,7 +18,7 @@ echo "Installing development environment"
 echo "Installing Rust"
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 echo "Installing JDK-21"
-sudo apt install openjdk-21-jdk
+sudo apt install openjdk-21-jdk -y
 echo "Installing Jetbrains Toolbox"
 curl -fsSL "$REPOBASE/jetbrains_toolbox.sh" | bash
 echo "Installing Docker:"
@@ -237,7 +237,14 @@ gsettings set org.gnome.shell.extensions.pop-shell show-active-hint true
 
 
 echo "Configuring Samba:"
-sudo smbpasswd -a "$SAMBAUSER"
+expect <<EOF
+spawn sudo smbpasswd -a $SAMBAUSER
+expect "New SMB password:"
+send "$sambapassword\r"
+expect "Retype new SMB password:"
+send "$sambapassword\r"
+expect eof
+EOF
 mkdir -p "$HOME/VM_Share/TwoWay"
 mkdir -p "/$HOME/VM_Share/ReadOnly"
 sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
