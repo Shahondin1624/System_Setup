@@ -39,9 +39,11 @@ sudo apt update && sudo apt install spotify-client -y
 
 echo "Installing Discord:"
 sudo apt install discord -y
+sudo flatpak override com.discordapp.Discord --filesystem=host
 
 echo "Installing Cryptomator:"
 flatpak install org.cryptomator.Cryptomator -y
+sudo flatpak override org.cryptomator.Cryptomator --filesystem=host
 
 echo "Installing Insync:"
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C
@@ -50,9 +52,11 @@ sudo apt update && sudo apt install insync -y
 
 echo "Installing Edge:"
 flatpak install com.microsoft.Edge -y
+sudo flatpak override com.microsoft.Edge --filesystem=host
 
 echo "Installing Obsidian:"
 flatpak install md.obsidian.Obsidian -y
+sudo flatpak override md.obsidian.Obsidian --filesystem=host
 
 echo "Installing NeoFetch:"
 sudo apt install neofetch -y
@@ -68,6 +72,7 @@ sudo apt install libayatana-appindicator3-1 gir1.2-ayatanaappindicator3-0.1 gnom
 
 echo "Installing Proton Mail Bridge:"
 flatpak install ch.protonmail.protonmail-bridge -y
+sudo flatpak override ch.protonmail.protonmail-bridge --filesystem=host
 
 echo "Installing BorgBackup:"
 sudo apt install borgbackup -y
@@ -80,6 +85,7 @@ sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils vir
 
 echo "Installing Teams:"
 flatpak install com.github.IsmaelMartinez.teams_for_linux -y
+sudo flatpak override com.github.IsmaelMartinez.teams_for_linux --filesystem=host
 
 
 echo "Configuring System..."
