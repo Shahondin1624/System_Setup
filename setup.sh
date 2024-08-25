@@ -51,6 +51,30 @@ echo "Installing Cryptomator:"
 flatpak install org.cryptomator.Cryptomator -y
 sudo flatpak override org.cryptomator.Cryptomator --filesystem=host
 
+# Create the systemd service file
+SERVICE_FILE="$HOME/.config/systemd/user/cryptomator.service"
+mkdir -p "$(dirname "$SERVICE_FILE")"
+cat <<EOL > "$SERVICE_FILE"
+[Unit]
+Description=Cryptomator
+
+[Service]
+ExecStart=/usr/bin/flatpak run org.cryptomator.Cryptomator
+
+[Install]
+WantedBy=default.target
+EOL
+# Reload systemd manager configuration
+systemctl --user daemon-reload
+
+# Enable the service to start at boot
+systemctl --user enable cryptomator.service
+
+# Start the service immediately
+systemctl --user start cryptomator.service
+
+echo "Cryptomator has been set up to start at system boot."
+
 echo "Installing Insync:"
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C
 echo "deb http://apt.insync.io/ubuntu $codename non-free contrib" | sudo tee /etc/apt/sources.list.d/insync.list
@@ -101,6 +125,47 @@ sudo apt install vlc -y
 
 echo "Installing Gimp:"
 sudo apt install gimp -y
+
+# Save the current directory
+CURRENT_DIR=$(pwd)
+
+echo "Installing Yubico Authenticator:"
+sudo apt install pcscd -y
+sudo systemctl enable --now pcscd
+
+
+# Define the download URL and target directory
+URL="https://developers.yubico.com/yubioath-flutter/Releases/yubico-authenticator-latest-linux.tar.gz"
+TARGET_DIR="/home/shahondin1624/Yubico"
+
+# Create the target directory
+mkdir -p "$TARGET_DIR"
+
+# Download the tar.gz file
+wget -O "$TARGET_DIR/yubico-authenticator-latest-linux.tar.gz" "$URL"
+
+# Change to the target directory
+cd "$TARGET_DIR"
+
+# Unpack the tar.gz file
+tar -xzf yubico-authenticator-latest-linux.tar.gz
+
+# Remove the tar.gz file
+rm yubico-authenticator-latest-linux.tar.gz
+
+# Change to the new directory (assuming it is named 'yubico-authenticator')
+cd yubico-authenticator*
+
+# Make the desktop_integration.sh script executable
+chmod +x desktop_integration.sh
+
+# Run the desktop_integration.sh script with the -i option
+./desktop_integration.sh -i
+
+echo "Yubico Authenticator has been installed and desktop integration has been set up."
+
+# Change back to the original directory
+cd "$CURRENT_DIR"
 
 
 echo "Configuring System..."
@@ -167,29 +232,30 @@ gsettings set org.gnome.shell.extensions.pop-shell show-active-hint true
 
 echo "Configuring Samba:"
 sudo smbpasswd -a shahondin1624
-mkdir -p /home/shahondin1624/VM_Share/TwoWay
-mkdir -p /home/shahondin1624/VM_Share/ReadOnly
+mkdir -p "$HOME/VM_Share/TwoWay"
+mkdir -p "/$HOME/VM_Share/ReadOnly"
 sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
-sudo bash -c 'cat <<EOT >> /etc/samba/smb.conf
+sudo bash -c "cat <<EOT >> /etc/samba/smb.conf
 
 [TwoWayShare]
-path = /home/shahondin1624/VM_Share/TwoWay
+path = $HOME/VM_Share/TwoWay
 available = yes
-valid users = shahondin1624
+valid users = $(whoami)
 read only = no
 browsable = yes
 public = yes
 writable = yes
 
 [ReadOnly]
-path = /home/shahondin1624/VM_Share/ReadOnly
+path = $HOME/VM_Share/ReadOnly
 available = yes
-valid users = shahondin1624
+valid users = $(whoami)
 read only = yes
 browsable = yes
 public = yes
 writable = no
-EOT'
+EOT"
+
 
 # Restart the Samba service
 sudo systemctl restart smbd
@@ -238,6 +304,28 @@ xdg-mime default vlc.desktop video/mp4
 xdg-mime default vlc.desktop video/x-matroska
 xdg-mime default vlc.desktop video/x-msvideo
 xdg-mime default vlc.desktop video/x-ms-wmv
+
+echo "Configuring Insync:"
+# Define the ignore rules
+IGNORE_RULES="**/out/**
+**/build/**
+**/target/**
+**/node_modules/**
+"
+
+# Define the path to the Insync ignore rules file
+IGNORE_FILE="$HOME/.config/Insync/ignore_rules"
+
+# Create the ignore rules file and add the rules
+mkdir -p "$(dirname "$IGNORE_FILE")"
+echo "$IGNORE_RULES" > "$IGNORE_FILE"
+
+echo "Ignore rules have been set up for Insync."
+
+
+echo "Preparing folder mounting:"
+mkdir "$HOME/Insync"
+mkdir "$HOME/Steam"
 
 
 echo "Finished installation!"
