@@ -80,6 +80,9 @@ sudo apt install borgbackup -y
 echo "Installing Vorta:"
 sudo apt install vorta -y
 
+echo "Installing Samba:"
+sudo apt install samba -y
+
 echo "Installing VM Management:"
 sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager -y
 
@@ -142,6 +145,36 @@ gsettings set org.gnome.shell.extensions.pop-shell snap-to-grid true
 gsettings set org.gnome.shell.extensions.pop-shell show-active-hint true
 
 
+echo "Configuring Samba:"
+sudo smbpasswd -a shahondin1624
+mkdir -p /home/shahondin1624/VM_Share/TwoWay
+mkdir -p /home/shahondin1624/VM_Share/ReadOnly
+sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
+sudo bash -c 'cat <<EOT >> /etc/samba/smb.conf
+
+[TwoWayShare]
+path = /home/shahondin1624/VM_Share/TwoWay
+available = yes
+valid users = shahondin1624
+read only = no
+browsable = yes
+public = yes
+writable = yes
+
+[ReadOnly]
+path = /home/shahondin1624/VM_Share/ReadOnly
+available = yes
+valid users = shahondin1624
+read only = yes
+browsable = yes
+public = yes
+writable = no
+EOT'
+
+# Restart the Samba service
+sudo systemctl restart smbd
+
+echo "Samba setup completed successfully!"
 
 
 echo "Finished installation!"
