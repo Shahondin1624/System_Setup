@@ -1,4 +1,10 @@
 #!/bin/bash
+#Query necessary data
+
+# Prompt for the Samba user password
+read -sp "Enter password for Samba user shahondin1624: " sambapass
+echo
+
 echo "Starting setup..."
 codename=$(lsb_release -cs)
 echo "Updating system..."
@@ -90,10 +96,14 @@ echo "Installing Teams:"
 flatpak install com.github.IsmaelMartinez.teams_for_linux -y
 sudo flatpak override com.github.IsmaelMartinez.teams_for_linux --filesystem=host
 
+echo "Installing VLC-Media Player:"
+sudo apt install vlc -y
+
+echo "Installing Gimp:"
+sudo apt install gimp -y
+
 
 echo "Configuring System..."
-echo "Show seconds on clock"
-gsettings set org.gnome.desktop.interface clock-show-seconds true
 
 # Minimize window
 gsettings set org.gnome.desktop.wm.keybindings minimize "['<Super>m']"
@@ -136,7 +146,17 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys screensaver "['<Super
 
 echo "Keyboard shortcuts have been set!"
 
-# Enable auto-tiling
+echo "Configuring shortcuts for commands:"
+# Add the custom shortcut
+gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom-system-monitor/']"
+
+# Set the name, command, and binding for the custom shortcut
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom-system-monitor/ name "custom-system-monitor"
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom-system-monitor/ command "gnome-system-monitor"
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom-system-monitor/ binding "<Control><Alt>Delete"
+echo "Custom shortcut for launching GNOME System Monitor has been set to Ctrl+Alt+Delete"
+
+echo "Configuring Tiling:"
 gsettings set org.gnome.shell.extensions.pop-shell tile-by-default true
 
 # Enable or disable window snapping
@@ -175,6 +195,49 @@ EOT'
 sudo systemctl restart smbd
 
 echo "Samba setup completed successfully!"
+
+echo "Installing GNOME-Extensions:"
+echo "Skipping GNOME-Extensions..."
+# sudo apt install gnome-shell-extensions -y
+# sudo apt install curl jq -y
+# curl -s https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer | sudo tee /usr/local/bin/gnome-shell-extension-installer > /dev/null
+# sudo chmod +x /usr/local/bin/gnome-shell-extension-installer
+# gnome-shell-extension-installer 120
+# gnome-extensions enable system-monitor@paradoxxx.zero.gmail.com
+
+echo "Setting Formats and Language:"
+sudo update-locale LANG=en_US.UTF-8
+gsettings set org.gnome.system.locale region 'de_DE.UTF-8'
+gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'de')]"
+gsettings set org.gnome.desktop.interface clock-format '24h'
+
+echo "Configuring power-related settings:"
+gsettings set org.gnome.desktop.session idle-delay 0
+gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'
+gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'nothing'
+system76-power profile performance
+
+echo "Disabling the dock:"
+gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false
+gsettings set org.gnome.shell.extensions.dash-to-dock autohide true
+
+echo "Configuring Desktop Options:"
+gsettings set org.gnome.shell.keybindings toggle-overview "['Super_L']"
+gsettings set org.gnome.shell.extensions.pop-cosmic show-workspaces-button true
+gsettings set org.gnome.shell.extensions.pop-cosmic show-applications-button true
+gsettings set org.gnome.desktop.interface clock-show-date true
+gsettings set org.gnome.desktop.interface clock-show-seconds true
+gsettings set org.gnome.desktop.interface clock-position 'left'
+gsettings set org.gnome.desktop.wm.preferences button-layout 'close,minimize,maximize:'
+
+echo "Configuring Default Applications:"
+xdg-settings set default-web-browser microsoft-edge.desktop
+xdg-mime default thunderbird.desktop x-scheme-handler/mailto
+xdg-mime default vlc.desktop audio/mpeg
+xdg-mime default vlc.desktop video/mp4
+xdg-mime default vlc.desktop video/x-matroska
+xdg-mime default vlc.desktop video/x-msvideo
+xdg-mime default vlc.desktop video/x-ms-wmv
 
 
 echo "Finished installation!"
