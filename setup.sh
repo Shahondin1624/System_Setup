@@ -30,7 +30,7 @@ sudo apt update && sudo apt install docker-ce docker-ce-cli containerd.io docker
 
 echo "Installing additional programs..."
 echo "Install Steam:"
-flatpak install com.valvesoftware.Steam -y
+sudo apt install steam steam-devices -y
 
 echo "Installing Spotify:"
 curl -sS https://download.spotify.com/debian/pubkey_6224F9941A8AA6D1.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
@@ -74,6 +74,12 @@ sudo apt install borgbackup -y
 
 echo "Installing Vorta:"
 sudo apt install vorta -y
+
+echo "Installing VM Management:"
+sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager -y
+
+echo "Installing Teams:"
+flatpak install com.github.IsmaelMartinez.teams_for_linux -y
 
 
 echo "Configuring System..."
