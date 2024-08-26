@@ -2,10 +2,17 @@
 #Query necessary data
 
 SAMBAUSER=$(whoami)
-
-# Prompt for the Samba user password
-read -sp "Enter password for Samba user $SAMBAUSER: " sambapassword
+# Prompt for Samba password
+read -s -p "Enter Samba password: " SAMBAPASSWORD
 echo
+read -s -p "Retype Samba password: " SAMBAPASSWORD_CONFIRM
+echo
+
+# Check if passwords match
+if [ "$SAMBAPASSWORD" != "$SAMBAPASSWORD_CONFIRM" ]; then
+    echo "Passwords do not match. Exiting."
+    exit 1
+fi
 
 echo "Starting setup..."
 codename=$(lsb_release -cs)
@@ -244,9 +251,9 @@ sudo apt install expect -y
 expect <<EOF
 spawn sudo smbpasswd -a $SAMBAUSER
 expect "New SMB password:"
-send "$sambapassword\r"
+send "$SAMBAPASSWORD\r"
 expect "Retype new SMB password:"
-send "$sambapassword\r"
+send "$SAMBAPASSWORD\r"
 expect eof
 EOF
 mkdir -p "$HOME/VM_Share/TwoWay"
@@ -311,7 +318,7 @@ gsettings set org.gnome.shell.extensions.pop-cosmic show-applications-button tru
 gsettings set org.gnome.desktop.interface clock-show-date true
 gsettings set org.gnome.desktop.interface clock-show-seconds true
 gsettings set org.gnome.desktop.interface clock-position 'left'
-gsettings set org.gnome.desktop.wm.preferences button-layout 'close,minimize,maximize:'
+gsettings set org.gnome.desktop.wm.preferences button-layout ':minimize,maximize,close'
 
 echo "Configuring Default Applications:"
 xdg-settings set default-web-browser microsoft-edge.desktop
@@ -350,7 +357,9 @@ sudo cp -f user_picture_resized.png "/var/lib/AccountsService/icons/$(whoami)"
 
 echo "Setting desktop background:"
 BACKGROUND_IMAGE_FILE="$(pwd)/desktop_background.png"
-gsettings set org.gnome.desktop.background picture-uri "file://$BACKGROUND_IMAGE_FILE"
+gsettings set org.gnome.desktop.background picture-uri "file:///$BACKGROUND_IMAGE_FILE"
+gsettings set org.gnome.desktop.background picture-uri-dark "file:///$BACKGROUND_IMAGE_FILE"
+echo "Wallpaper will be applied after a logout..."
 
 echo "Copying aliases:"
 cp .bash_aliases "$HOME/.bash_aliases"
