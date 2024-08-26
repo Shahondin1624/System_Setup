@@ -186,10 +186,10 @@ gsettings set org.gnome.desktop.wm.keybindings minimize "['<Super>m']"
 gsettings set org.gnome.desktop.wm.keybindings maximize "['<Super>Up']"
 
 # Move window to the monitor on the left
-gsettings set org.gnome.desktop.wm.keybindings move-to-monitor-left "['<Super><Shift>Left']"
+gsettings set org.gnome.desktop.wm.keybindings pop-monitor-left "['<Super><Shift>Left']"
 
 # Move window to the monitor on the right
-gsettings set org.gnome.desktop.wm.keybindings move-to-monitor-right "['<Super><Shift>Right']"
+gsettings set org.gnome.desktop.wm.keybindings pop-monitor-right "['<Super><Shift>Right']"
 
 # Move to workspace 1
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-1 "['<Super>1']"
@@ -231,15 +231,16 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/or
 echo "Custom shortcut for launching GNOME System Monitor has been set to Ctrl+Alt+Delete"
 
 echo "Configuring Tiling:"
-gsettings set org.gnome.shell.extensions.pop-shell tile-by-default true
+gsettings set org.gnome.shell.extensions.pop-shell toggle-tiling true
 
 # Enable or disable window snapping
 gsettings set org.gnome.shell.extensions.pop-shell snap-to-grid true
 # Activate Active-Window-Hint
-gsettings set org.gnome.shell.extensions.pop-shell show-active-hint true
+gsettings set org.gnome.shell.extensions.pop-shell active-hint true
 
 
 echo "Configuring Samba:"
+sudo apt install expect -y
 expect <<EOF
 spawn sudo smbpasswd -a $SAMBAUSER
 expect "New SMB password:"
@@ -343,7 +344,9 @@ mkdir "$HOME/Steam"
 
 echo "Setting user picture:"
 cd "$(pwd)/System_Setup/"
-sudo cp -f user_picture.png "/var/lib/AccountsService/icons/$(whoami)"
+sudo apt install imagemagick
+convert user_picture.png -resize 500x500^ -gravity center -extent 500x500 user_picture_resized.png
+sudo cp -f user_picture_resized.png "/var/lib/AccountsService/icons/$(whoami)"
 
 echo "Setting desktop background:"
 BACKGROUND_IMAGE_FILE="$(pwd)/desktop_background.png"
