@@ -185,7 +185,56 @@ sudo apt install btop -y
 
 
 echo "Configuring System..."
+echo "Configuring Samba:"
+sudo apt install expect -y
+expect <<EOF
+spawn sudo smbpasswd -a $SAMBAUSER
+expect "New SMB password:"
+send "$SAMBAPASSWORD\r"
+expect "Retype new SMB password:"
+send "$SAMBAPASSWORD\r"
+expect eof
+EOF
+mkdir -p "$HOME/VM_Share/TwoWay"
+mkdir -p "/$HOME/VM_Share/ReadOnly"
+sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
+sudo bash -c "cat <<EOT >> /etc/samba/smb.conf
 
+[TwoWayShare]
+path = $HOME/VM_Share/TwoWay
+available = yes
+valid users = $(whoami)
+read only = no
+browsable = yes
+public = yes
+writable = yes
+
+[ReadOnly]
+path = $HOME/VM_Share/ReadOnly
+available = yes
+valid users = $(whoami)
+read only = yes
+browsable = yes
+public = yes
+writable = no
+EOT"
+
+
+# Restart the Samba service
+sudo systemctl restart smbd
+
+echo "Samba setup completed successfully!"
+
+echo "Installing GNOME-Extensions:"
+echo "Skipping GNOME-Extensions..."
+# sudo apt install gnome-shell-extensions -y
+# sudo apt install curl jq -y
+# curl -s https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer | sudo tee /usr/local/bin/gnome-shell-extension-installer > /dev/null
+# sudo chmod +x /usr/local/bin/gnome-shell-extension-installer
+# gnome-shell-extension-installer 120
+# gnome-extensions enable system-monitor@paradoxxx.zero.gmail.com
+
+echo "Customizing Keybindings..."
 # Minimize window
 gsettings set org.gnome.desktop.wm.keybindings minimize "['<Super>m']"
 
@@ -238,62 +287,12 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/or
 echo "Custom shortcut for launching GNOME System Monitor has been set to Ctrl+Alt+Delete"
 
 echo "Configuring Tiling:"
-gsettings set org.gnome.shell.extensions.pop-shell toggle-tiling true
+xdotool key super+y
 
 # Enable or disable window snapping
 gsettings set org.gnome.shell.extensions.pop-shell snap-to-grid true
 # Activate Active-Window-Hint
 gsettings set org.gnome.shell.extensions.pop-shell active-hint true
-
-
-echo "Configuring Samba:"
-sudo apt install expect -y
-expect <<EOF
-spawn sudo smbpasswd -a $SAMBAUSER
-expect "New SMB password:"
-send "$SAMBAPASSWORD\r"
-expect "Retype new SMB password:"
-send "$SAMBAPASSWORD\r"
-expect eof
-EOF
-mkdir -p "$HOME/VM_Share/TwoWay"
-mkdir -p "/$HOME/VM_Share/ReadOnly"
-sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
-sudo bash -c "cat <<EOT >> /etc/samba/smb.conf
-
-[TwoWayShare]
-path = $HOME/VM_Share/TwoWay
-available = yes
-valid users = $(whoami)
-read only = no
-browsable = yes
-public = yes
-writable = yes
-
-[ReadOnly]
-path = $HOME/VM_Share/ReadOnly
-available = yes
-valid users = $(whoami)
-read only = yes
-browsable = yes
-public = yes
-writable = no
-EOT"
-
-
-# Restart the Samba service
-sudo systemctl restart smbd
-
-echo "Samba setup completed successfully!"
-
-echo "Installing GNOME-Extensions:"
-echo "Skipping GNOME-Extensions..."
-# sudo apt install gnome-shell-extensions -y
-# sudo apt install curl jq -y
-# curl -s https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer | sudo tee /usr/local/bin/gnome-shell-extension-installer > /dev/null
-# sudo chmod +x /usr/local/bin/gnome-shell-extension-installer
-# gnome-shell-extension-installer 120
-# gnome-extensions enable system-monitor@paradoxxx.zero.gmail.com
 
 echo "Setting Formats and Language:"
 sudo update-locale LANG=en_US.UTF-8
