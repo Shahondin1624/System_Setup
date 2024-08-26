@@ -173,8 +173,8 @@ echo "Yubico Authenticator has been installed and desktop integration has been s
 # Change back to the original directory
 cd "$CURRENT_DIR"
 
-echo "Installing htop:"
-sudo apt install htop -y
+echo "Installing btop:"
+sudo apt install btop -y
 
 
 echo "Configuring System..."
@@ -366,3 +366,4 @@ source "$HOME/.bashrc"
 
 echo "Finished installation!"
 neofetch
+gnome-terminal -- bash -c "btop; exec bash"
