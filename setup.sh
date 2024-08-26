@@ -2,7 +2,6 @@
 #Query necessary data
 
 SAMBAUSER=$(whoami)
-REPOBASE="https://raw.githubusercontent.com/Shahondin1624/System_Setup/master"
 
 # Prompt for the Samba user password
 read -sp "Enter password for Samba user $SAMBAUSER: " sambapassword
@@ -20,7 +19,11 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 echo "Installing JDK-21"
 sudo apt install openjdk-21-jdk -y
 echo "Installing Jetbrains Toolbox"
-curl -fsSL "$REPOBASE/jetbrains_toolbox.sh" | bash
+cd "$(pwd)/System_Setup/"
+chmod +x jetbrains_toolbox.sh
+./jetbrains_toolbox.sh
+cd ..
+
 echo "Installing Docker:"
 # Add Docker's official GPG key:
 sudo apt-get update
@@ -339,17 +342,15 @@ mkdir "$HOME/Insync"
 mkdir "$HOME/Steam"
 
 echo "Setting user picture:"
-USER_IMAGE_FILE="/tmp/user_picture.png"
-wget -O "$USER_IMAGE_FILE" "$REPOBASE/user_picture.png"
-sudo cp -f "$USER_IMAGE_FILE" "/var/lib/AccountsService/icons/$(whoami)"
+cd "$(pwd)/System_Setup/"
+sudo cp -f user_picture.png "/var/lib/AccountsService/icons/$(whoami)"
 
 echo "Setting desktop background:"
-BACKGROUND_IMAGE_FILE="/tmp/desktop_background.png"
-wget -O "$BACKGROUND_IMAGE_FILE" "$REPOBASE/desktop_background.png"
+BACKGROUND_IMAGE_FILE="$(pwd)/desktop_background.png"
 gsettings set org.gnome.desktop.background picture-uri "file://$BACKGROUND_IMAGE_FILE"
 
 echo "Copying aliases:"
-wget -O "$HOME/.bash_aliases" TODO
+cp .bash_aliases "$HOME/.bash_aliases"
 # Append the sourcing of .bash_aliases to .bashrc if not already present
 if ! grep -q 'source ~/.bash_aliases' "$HOME/.bashrc"; then
     echo 'if [ -f ~/.bash_aliases ]; then' >> "$HOME/.bashrc"
