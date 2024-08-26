@@ -348,6 +348,16 @@ BACKGROUND_IMAGE_FILE="/tmp/desktop_background.png"
 wget -O "$BACKGROUND_IMAGE_FILE" "$REPOBASE/desktop_background.png"
 gsettings set org.gnome.desktop.background picture-uri "file://$BACKGROUND_IMAGE_FILE"
 
+echo "Copying aliases:"
+wget -O "$HOME/.bash_aliases" TODO
+# Append the sourcing of .bash_aliases to .bashrc if not already present
+if ! grep -q 'source ~/.bash_aliases' "$HOME/.bashrc"; then
+    echo 'if [ -f ~/.bash_aliases ]; then' >> "$HOME/.bashrc"
+    echo '    . ~/.bash_aliases' >> "$HOME/.bashrc"
+    echo 'fi' >> "$HOME/.bashrc"
+fi
+source "$HOME/.bashrc"
+
 
 
 echo "Finished installation!"
