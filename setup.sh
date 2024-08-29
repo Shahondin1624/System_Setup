@@ -373,5 +373,6 @@ source "$HOME/.bashrc"
 
 
 echo "Finished installation!"
+monitor
 neofetch
 gnome-terminal -- bash -c "btop; exec bash"
